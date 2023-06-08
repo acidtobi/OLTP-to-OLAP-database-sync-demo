@@ -1,0 +1,43 @@
+services:
+
+  mysql-oltp:
+    build: ./mysql-oltp/
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'oltp'
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_TCP_PORT: 8000
+    ports:
+      - '8000:8000'
+
+  mysql-olap:
+    build: ./mysql-olap/
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'olap'
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_TCP_PORT: 9000
+    ports:
+      - '9000:9000'
+
+  row_inserter_service:
+    build: ./row_inserter_service/
+    ## give MySQL 60 seconds to spin up until it accepts connections
+    command: sh -c "wait-for-it -t 60 mysql-oltp:8000 -- python ./runner.py"
+    restart: always
+    environment:
+      ## avoid buffering for log messages
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      - mysql-oltp
+
+  database_sync_service:
+    build: ./database_sync_service/
+    ## give MySQL 60 seconds to spin up until it accepts connections
+    command: sh -c "wait-for-it -t 60 mysql-olap:9000 -- python ./runner.py"
+    restart: always
+    environment:
+      ## avoid buffering for log messages
+      PYTHONUNBUFFERED: 1
+    depends_on:
+      - mysql-olap
