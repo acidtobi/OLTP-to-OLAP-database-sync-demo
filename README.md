@@ -2,7 +2,12 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a simple combination of an OLTP database holding transactions data and an OLAP database this transactions data is synchronized into and a balance table derived form this transactions data is updated on every sychronization cycle.
+This is a simple combination of an OLTP database holding transactions
+data and an OLAP database for analytical processing of the transaction 
+data.
+The transactions data is synchronized from the OLTP to the OLAP database
+and a balance table derived from the transaction data is generated. 
+The balance data is updated on every sychronization cycle.
 
 It consists for 4 separate Docker containers:
 * the OLTP database (MySQL)
